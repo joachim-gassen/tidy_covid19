@@ -5,12 +5,12 @@ Joachim Gassen
 ## Disclaimer
 
 I am an applied economist who studies the economic effects of regulatory
-interventions related to corporate transparency. Related to that I am
-the co-speaker of the research center [TRR 266 Accounting for
+interventions on corporate transparency. Related to that I am the
+co-speaker of the research center [TRR 266 Accounting for
 Transparency](https://accounting-for-transparency.de) that is funded by
 the German Science Foundation DFG.
 
-For the TRR 266 I take responsibility the Open Science Data Center
+For the TRR 266 I take responsibility for the Open Science Data Center
 (OSDC). The OSDC has the objective to make research transparent in a way
 that others can contribute and collaborate.
 
