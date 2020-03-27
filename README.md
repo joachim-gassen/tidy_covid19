@@ -24,6 +24,13 @@ In that way, I hope that it might be helpful for others that are
 interested in doing research on the Covid 19 pandemic by promoting the
 benefits of open science.
 
+## Blog post
+
+[Click
+here](https://joachim-gassen.github.io/2020/03/merge-covid-19-data-with-governmental-interventions-data/)
+for the blog post that showcases some descriptive visuals to see what
+one can do with the data retrieved by this project.
+
 ## Data
 
 This repository is not containing any self-collected or generated data.
