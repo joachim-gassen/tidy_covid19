@@ -46,7 +46,7 @@ df %>%
   geom_bar(stat = "identity", fill = "lightblue", color = NA) + 
   geom_label_repel(aes(label = ctries), min.segment.length = unit(0, 'lines')) +
   labs(title = "Covid-19 Country-level Outbreaks over Time",
-       x = "Date where casulties first reached 10 cases",
+       x = "Date where reported deaths first reached 10",
        y = "Number of countries") + 
   theme_minimal()
 
@@ -74,7 +74,7 @@ lab_x_axis_confirmed <-
   "Days since confirmed cases reached 100 cases\n"
 
 lab_x_axis_deaths <- 
-  "Days since reported casulties reached 10 cases\n"
+  "Days since reported deaths reached 10\n"
 
 gg_my_blob <- list(
   scale_y_continuous(trans='log10', labels = scales::comma),  
@@ -97,13 +97,13 @@ gg_my_blob_confirmed <- c(gg_my_blob,
                                     y = "Confirmed cases (logarithmic scale)")))
 gg_my_blob_deaths <- c(gg_my_blob, 
                        list(labs(x = lab_x_axis_deaths,
-                                 y = "Redorted casulties (logarithmic scale)")))
+                                 y = "Redorted deaths (logarithmic scale)")))
 
 ggplot(df_confirmed %>% filter (edate_confirmed <= 30), 
        aes(x = edate_confirmed, color = country, y = confirmed)) +
   geom_line() +
   labs(
-    title = "Focus on the first month: Cases\n"
+    title = "Focus on the first month: Confirmed cases\n"
   ) +
   gg_my_blob_confirmed
 
@@ -111,7 +111,7 @@ ggplot(df_deaths %>% filter (edate_deaths <= 30),
        aes(x = edate_deaths, color = country, y = deaths)) +
   geom_line() +
   labs(
-    title = "Focus on the first month: Casulties\n"
+    title = "Focus on the first month: Deaths\n"
   ) +
   gg_my_blob_deaths  
 
@@ -197,7 +197,7 @@ npi %>%
   left_join(ctry_names, by = "iso3c") %>%
   select(iso3c, country, npi_date, npi_edate, npi_type, npi_lockdown) -> npi_edates
 
-lab_x <- "Days relative to date where casulties reached 10 cases"
+lab_x <- "Days relative to the date where reported deaths reached 10"
 
 ggplot(npi_edates, aes(x = npi_edate, fill = npi_type)) + 
   geom_bar(position = "stack") + theme_minimal() +
@@ -258,27 +258,27 @@ ggplot(npi_ctry, aes(x = soc_dist_ctry, y = lockdown_ctry)) +
   geom_label_repel(aes(label = country)) +
   theme_minimal() +
   labs(
-    x = "More than median amount of socical distancing measures",
+    x = "More than median amount of social distancing measures",
     y = "Lockdown initiated",
     caption = paste0(
-      "Governent intervention measures as provided by ",
+      "Government intervention measures as provided by ",
       "Assessment Capacities Project (ACAPS). Data as of March 27, 2020.\n",
-      "All countries with 10 or more reported casulties are included. ",
+      "All countries with 10 or more reported deaths are included. ",
       "Code: https://github.com/joachim-gassem/tidy_covid19"
     )
   )
 
 compare_death_growth <- function(df, var) {
   lab_caption <- paste0(
-    "Casulties data as provided by Johns Hopkins University Center for Systems Science ", 
-    "and Engineering (JHU CSSE).\nGovernent intervention measures as provided by ",
+    "Deaths data as provided by Johns Hopkins University Center for Systems Science ", 
+    "and Engineering (JHU CSSE).\nGovernment intervention measures as provided by ",
     "Assessment Capacities Project (ACAPS). Data as of March 27, 2020.\n",
     "At least five daily country-level observations required by group for ", 
     "estimation. Code: https://github.com/joachim-gassem/tidy_covid19"
   )
   lab_color <- case_when(
     var == "soc_dist_ctry" ~
-      "More than median amount of\nsocical distancing measures",
+      "More than median amount of\nsocial distancing measures",
     var == "lockdown_ctry" ~ "Lockdown initiated",
     TRUE ~ var
   )
@@ -298,7 +298,7 @@ compare_death_growth <- function(df, var) {
       position=position_dodge(0.4)
     ) + labs(
       x = lab_x,
-      y = "Average daily percentage increase in reported casulties by group",
+      y = "Average daily percentage increase in reported deaths by group",
       caption = lab_caption,
       color = lab_color
     ) + 

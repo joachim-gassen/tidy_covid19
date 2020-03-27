@@ -31,7 +31,8 @@ df$category[df$category == "Social Distancing"] <- "Social distancing"
 
 df %>% 
   select(-pcode) %>% # 2020-03-25 is all NA 
-  filter(!is.na(date_implemented)) %>%
+  filter(!is.na(date_implemented),
+         !is.na(category)) %>%
   rename (iso3c = iso) -> npi_acaps
 
 write_csv(npi_acaps, "data/npi_acaps.csv")

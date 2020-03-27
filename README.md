@@ -4,15 +4,13 @@ Joachim Gassen
 
 ## Disclaimer
 
-I am an applied economist who studies the economic effects of regulatory
-interventions on corporate transparency. Related to that I am the
-co-speaker of the research center [TRR 266 Accounting for
-Transparency](https://accounting-for-transparency.de) that is funded by
-the German Science Foundation DFG.
-
-For the TRR 266 I take responsibility for the Open Science Data Center
-(OSDC). The OSDC has the objective to make research transparent in a way
-that others can contribute and collaborate.
+I am an applied economist studying the economic effects of regulatory
+interventions on corporate transparency and leading the Open Science
+Data Center (OSDC) of the [TRR 266 Accounting for
+Transparency](https://accounting-for-transparency.de), wich is funded by
+the German Science Foundation (DFG). The OSDC has the objective to make
+research transparent in a way that others can contribute and
+collaborate.
 
 This is the spirit that motivated me to set up this repository. I am
 clearly no epidemiologist so I will abstain from analyzing the spread of
@@ -40,7 +38,7 @@ sources
     Capacities Project
     (ACAPS)](https://data.humdata.org/dataset/acaps-covid19-government-measures-dataset).
     These relatively new data allow researchers to study the effect of
-    non-pharmaceutical interventions on the delevelopment of the virus.
+    non-pharmaceutical interventions on the development of the virus.
   - Additional country level information provided by the [World
     Bank](https://data.worldbank.org). These data allow researchers to
     calculate per capita measures of the virus spread and to assess the
