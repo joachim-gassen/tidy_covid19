@@ -398,5 +398,5 @@ ggplot(ctry_level %>% filter(!is.na(gtrends_country_score)),
   ) +
   scale_x_continuous(trans='log10', labels = scales::comma)  
 
-ggsave("media/pattention.png", width = 8, height = 4, dpi = 160)
+ggsave("media/pattention.png", width = 1.91*4, height = 4, dpi = 160)
 

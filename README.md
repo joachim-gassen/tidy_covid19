@@ -47,7 +47,8 @@ sources
     These relatively new data allow researchers to study the effect of
     non-pharmaceutical interventions on the development of the virus.
   - [Google Trends](https://trends.google.com/trends/) data on the
-    search volume for the term “coronavirus”
+    search volume for the term “coronavirus” (Thank you to Yan Ouaknine
+    for bringing up that idea\!)
   - Additional country level information provided by the [World
     Bank](https://data.worldbank.org). These data allow researchers to
     calculate per capita measures of the virus spread and to assess the

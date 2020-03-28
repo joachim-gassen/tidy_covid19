@@ -44,7 +44,7 @@ it currently builds on four external, publicly available data sources
 - The [Covid-19 data from the Johns Hopkins University CSSE team](https://github.com/CSSEGISandData/COVID-19). This data has developed to a standard resource for researchers and the general audience 
 interested in assessing the global spreading of the virus.
 - The [Government measures dataset provided by the Assessment Capacities Project (ACAPS)](https://data.humdata.org/dataset/acaps-covid19-government-measures-dataset). These relatively new data allow researchers to study the effect of non-pharmaceutical interventions on the development of the virus. 
-- [Google Trends](https://trends.google.com/trends/) data on the search volume for the term "coronavirus"
+- [Google Trends](https://trends.google.com/trends/) data on the search volume for the term "coronavirus" (Thank you to Yan Ouaknine for bringing up that idea!)
 - Additional country level information provided by the [World Bank](https://data.worldbank.org). These data allow researchers to calculate per capita measures of the virus spread and to assess the association of macro-economic variables with the development of the virus.
 
 
