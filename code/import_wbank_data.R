@@ -59,5 +59,5 @@ wb_data %>%
     life_expectancy = last(na.omit(SP.DYN.LE00.IN))
   ) %>% left_join(wb_data %>% select(iso3c, region, income) %>% distinct()) -> wb_cs
 
-write_csv(wb_cs, "data/wbank_data.csv")
+write_csv(wb_cs, "data/wbank.csv")
 

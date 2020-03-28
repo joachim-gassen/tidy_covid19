@@ -35,4 +35,4 @@ df %>%
          !is.na(category)) %>%
   rename (iso3c = iso) -> npi_acaps
 
-write_csv(npi_acaps, "data/npi_acaps.csv")
+write_csv(npi_acaps, "data/acaps_npi.csv")

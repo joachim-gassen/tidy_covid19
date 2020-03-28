@@ -70,6 +70,12 @@ The `code` directories contains the following R code files:
     of the data. You can use it as a starting point for your own
     analyses.
 
+The quickest way to pull the data and to run the analysis is to hit
+‘Build all’ in the Build tab of RStudio. Alternatively, at the
+Termninal, you can enter ‘make all’. After that you should have all the
+data stored in the `data` directory and be able to run the code in
+`code/descriptive_analyses.R`.
+
 ## Alternative data sources for non-pharmaceutical interventions
 
 As far as I can tell, there is no commonly accepted data repository for

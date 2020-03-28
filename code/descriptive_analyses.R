@@ -4,9 +4,13 @@ library(gghighlight)
 library(ggrepel)
 
 
+# Prior to sourcing this file you need to pull the data. 
+# The quickest way to do that is to hit 'Build all' in the Build tab of RStudio.
+# Or, at the Termninal, enter 'make all'
+
 # --- Some visuals showing the spread of Covid-19 ------------------------------
 
-merged <- read_csv("data/merged_data.csv", 
+merged <- read_csv("data/merged.csv", 
                 col_types = cols()) %>%
   mutate(date = ymd(date))
 
@@ -115,8 +119,12 @@ ggplot(df_deaths %>% filter (edate_deaths <= 30),
   ) +
   gg_my_blob_deaths  
 
-ggplot(df_deaths %>% filter (edate_deaths <= 30,
-                                max(recovered) >= 100), 
+ggplot(df_deaths %>% 
+         filter(
+           recovered > 0,
+           edate_deaths <= 30,
+           max(recovered) >= 100
+         ), 
        aes(x = edate_deaths, color = country, y = recovered)) +
   geom_line() +
   gg_my_blob_deaths +
@@ -170,7 +178,7 @@ single_out_countries(
 
 # --- Some descriptives for the implentation of NPIs over time -----------------
 
-read_csv("data/npi_acaps.csv", col_types = cols()) %>%
+read_csv("data/acaps_npi.csv", col_types = cols()) %>%
   mutate(npi_date = ymd(date_implemented)) %>%
   rename(npi_type = category) %>%
   mutate(

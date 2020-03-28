@@ -1,11 +1,11 @@
 library(tidyverse)
 library(lubridate)
 
-cases <- read_csv("data/jh_covid19_data_ctry_level_long_format.csv", 
+cases <- read_csv("data/jh_covid19_ctry_level.csv", 
                   col_types = cols()) %>%
   mutate(date = ymd(date))
 
-read_csv("data/npi_acaps.csv", col_types = cols()) %>%
+read_csv("data/acaps_npi.csv", col_types = cols()) %>%
   mutate(npi_date = ymd(date_implemented)) %>%
   rename (npi_type = category) %>%
   select(iso3c, npi_date, npi_type) -> npi
@@ -56,8 +56,8 @@ cases %>%
     by = c("iso3c", "date")
   ) %>%
   left_join(
-    read_csv("data/wbank_data.csv", col_types = cols()),
+    read_csv("data/wbank.csv", col_types = cols()),
     by = "iso3c"
   )  -> raw_sample
 
-write_csv(raw_sample, "data/merged_data.csv")
+write_csv(raw_sample, "data/merged.csv")

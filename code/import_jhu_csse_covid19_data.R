@@ -56,4 +56,4 @@ jh_covid19_data %>%
   left_join(jhd_countries, by = "iso3c") %>%
   select(country, iso3c, date, confirmed, deaths, recovered) -> jh_covid19_data
 
-write_csv(jh_covid19_data, "data/jh_covid19_data_ctry_level_long_format.csv")
+write_csv(jh_covid19_data, "data/jh_covid19_ctry_level.csv")
