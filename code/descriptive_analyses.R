@@ -378,18 +378,18 @@ ggplot(ctry_level %>% filter(!is.na(gtrends_country_score)),
   theme_minimal() + 
   geom_label_repel(aes(group = NA, label = iso3c)) + labs(
     x = "Number of reported deaths (logarithmic scale)",
-    y = "Public Attention\nas assessed by country rank on Google Trends, term 'coronavirus'" ,
+    y = "Public Attention on Covid-19" ,
     caption = paste0(
       "Data on deaths as provided by Johns Hopkins University Center for Systems Science ", 
       "and Engineering (JHU CSSE) \nGovernment intervention measures as provided by ",
-      "Assessment Capacities Project (ACAPS). Data obtained on March 28, 2020.\n",
-      "Code: https://github.com/joachim-gassem/tidy_covid19"
+      "Assessment Capacities Project (ACAPS). Public Attention\n",
+      "as assessed by country rank on Google Trends, term 'coronavirus.'\n",
+      "Data obtained on March 28, 2020. Code: https://github.com/joachim-gassem/tidy_covid19"
     ),
     color = "Lockdown intiated?",
     size = "Number of implemented\nsocial distancing measures"
   ) + 
   theme(
-#    legend.position = c(0.85, 0.3),
     plot.title.position = "plot", 
     plot.caption.position =  "plot",
     plot.caption = element_text(hjust = 0),
