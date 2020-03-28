@@ -69,7 +69,7 @@ df %>%
 
 lab_notes <- paste0(
   "Data as provided by Johns Hopkins University Center for Systems Science ", 
-  "and Engineering (JHU CSSE) and obtained on March 27, 2020.\n",
+  "and Engineering (JHU CSSE) and obtained on March 28, 2020.\n",
   "The sample is limited to countries with at least seven days of positve ", 
   "event days data. Code: https://github.com/joachim-gassem/tidy_covid19"
 )
@@ -324,4 +324,79 @@ compare_death_growth <- function(df, var) {
 
 compare_death_growth(df, "soc_dist_ctry")
 compare_death_growth(df, "lockdown_ctry")
+
+
+# --- Link of public attention (assessed by Google Trends) with NPIs -----------
+
+merged %>%
+  filter(gtrends_score == 100) %>%
+  group_by(date) %>%
+  summarise(
+    count = n(),
+    ctries = paste(iso3c, collapse = " ")
+  ) %>%
+  ggplot(aes(x = date, y = count)) + 
+  geom_bar(stat = "identity", fill = "lightblue", color = NA) + 
+  geom_label_repel(aes(label = ctries), min.segment.length = unit(0, 'lines')) +
+  labs(title = "Timing of Public Attention Spike",
+       x = "Date where Google Trend reports highest hit score for 'coronavirus'",
+       y = "Number of countries") + 
+  theme_minimal()
+
+ctry_level <- merged %>%
+  inner_join(ctry_edate, by = "iso3c") %>%
+  group_by(iso3c) %>%
+  mutate(
+    edate = as.numeric(edate - min(merged$date)),
+    deaths = max(deaths),
+    ln_deaths = log(deaths),
+    confirmed = max(confirmed),
+    ln_confirmed = log(confirmed),
+    soc_dist = max(soc_dist),
+    lockdown = max(lockdown) > 0,
+    sum_npi = max(soc_dist + mov_rest + pub_health + soc_econ)
+  ) %>%
+  select(iso3c, country, edate, deaths, ln_deaths, confirmed, ln_confirmed,
+         soc_dist, lockdown, sum_npi, 
+         gdp_capita, pop_density, gtrends_country_score) %>%
+  unique() %>%
+  left_join(
+    merged %>%
+      inner_join(ctry_edate, by = "iso3c") %>%
+      filter(gtrends_score == 100) %>%
+      group_by(iso3c) %>%
+      filter(row_number() == 1) %>%
+      mutate(gtrends_spike_edate = as.numeric(date - edate)) %>%
+      select(iso3c, gtrends_spike_edate),
+    by = "iso3c"
+  )
+
+ggplot(ctry_level %>% filter(!is.na(gtrends_country_score)), 
+       aes(x = deaths, y = gtrends_country_score)) +
+  geom_point(aes(color = lockdown, size = soc_dist)) + 
+  geom_smooth(method = "lm") + 
+  theme_minimal() + 
+  geom_label_repel(aes(group = NA, label = iso3c)) + labs(
+    x = "Number of reported deaths (logarithmic scale)",
+    y = "Public Attention\nas assessed by country rank on Google Trends, term 'coronavirus'" ,
+    caption = paste0(
+      "Data on deaths as provided by Johns Hopkins University Center for Systems Science ", 
+      "and Engineering (JHU CSSE) \nGovernment intervention measures as provided by ",
+      "Assessment Capacities Project (ACAPS). Data obtained on March 28, 2020.\n",
+      "Code: https://github.com/joachim-gassem/tidy_covid19"
+    ),
+    color = "Lockdown intiated?",
+    size = "Number of implemented\nsocial distancing measures"
+  ) + 
+  theme(
+#    legend.position = c(0.85, 0.3),
+    plot.title.position = "plot", 
+    plot.caption.position =  "plot",
+    plot.caption = element_text(hjust = 0),
+    axis.title.x = element_text(hjust = 1),
+    axis.title.y = element_text(hjust = 1),
+  ) +
+  scale_x_continuous(trans='log10', labels = scales::comma)  
+
+ggsave("media/pattention.png", width = 8, height = 4, dpi = 160)
 

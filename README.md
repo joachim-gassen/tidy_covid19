@@ -34,7 +34,7 @@ one can do with the data retrieved by this project.
 ## Data
 
 This repository is not containing any self-collected or generated data.
-Instead it currently builds on three external, publicly available data
+Instead it currently builds on four external, publicly available data
 sources
 
   - The [Covid-19 data from the Johns Hopkins University CSSE
@@ -46,6 +46,8 @@ sources
     (ACAPS)](https://data.humdata.org/dataset/acaps-covid19-government-measures-dataset).
     These relatively new data allow researchers to study the effect of
     non-pharmaceutical interventions on the development of the virus.
+  - [Google Trends](https://trends.google.com/trends/) data on the
+    search volume for the term “coronavirus”
   - Additional country level information provided by the [World
     Bank](https://data.worldbank.org). These data allow researchers to
     calculate per capita measures of the virus spread and to assess the
@@ -63,6 +65,8 @@ The `code` directories contains the following R code files:
     for more information on the code.
   - `import_acaps_npi.R` Imports the ACAPS Government measures data, and
     fixes some minor inconsistencies in the category labels.
+  - `import_google_trends_data.R`: Retrieves and imports Google Trends
+    data using the package {gtrendsR}
   - `import_wbank_data.R` Imports current country-level World Bank data.
   - `merge_data.R` Merges data from the three data sources into a
     country-day panel data set.
@@ -94,8 +98,10 @@ newsletter](https://tinyletter.com/data-is-plural/letters/data-is-plural-2020-03
     Co-authors](https://github.com/seabbs/CovidInterventionReview)
 
 I am virtually certain that this list is incomplete and would very much
-appreciate additional pointers that I can include
-here.
+appreciate additional pointers that I can include here.
+
+![Attention on
+Covid-19](media/pattention.png)
 
 ![\#FlattenTheCurve](media/recoveries.png)
 

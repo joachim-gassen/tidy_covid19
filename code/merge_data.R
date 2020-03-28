@@ -56,6 +56,16 @@ cases %>%
     by = c("iso3c", "date")
   ) %>%
   left_join(
+    read_csv("data/gtrends_country_day.csv", col_types = cols()) %>%
+      mutate(date = ymd(date)),
+    by = c("iso3c", "date")
+  ) %>%
+  left_join(
+    read_csv("data/gtrends_country.csv", col_types = cols()) %>%
+      rename(gtrends_country_score = gtrends_score),
+    by = c("iso3c")
+  ) %>%
+  left_join(
     read_csv("data/wbank.csv", col_types = cols()),
     by = "iso3c"
   )  -> raw_sample
