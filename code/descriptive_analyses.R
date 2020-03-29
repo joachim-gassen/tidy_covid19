@@ -8,7 +8,13 @@ library(ggrepel)
 # The quickest way to do that is to hit 'Build all' in the Build tab of RStudio.
 # Or, at the Termninal, enter 'make all'
 
-# --- Some visuals showing the spread of Covid-19 ------------------------------
+# --- Load and prep data -------------------------------------------------------
+
+# The following relies on you being in an English locale
+# Consider setting Sys.setlocale("LC_TIME", "C")
+# if you are not
+
+data_date_str <- format(as_date(file.info("data/merged.csv")$ctime), "%B %d, %Y")
 
 merged <- read_csv("data/merged.csv", 
                 col_types = cols()) %>%
@@ -39,6 +45,9 @@ merged %>%
     recovered_1e5pop = 1e5*recovered/population
   ) -> df
 
+
+# --- Some visuals showing the spread of Covid-19 ------------------------------
+
 df %>% 
   filter(edate_deaths == 0) %>%
   group_by(date) %>%
@@ -54,84 +63,139 @@ df %>%
        y = "Number of countries") + 
   theme_minimal()
 
-df %>%
-  filter(!is.na(edate_confirmed)) %>%
-  filter(edate_confirmed >= 0) %>%
-  group_by(country) %>%
-  filter (n() >= 7) -> df_confirmed
 
-df %>%
-  filter(!is.na(edate_deaths)) %>%
-  filter(edate_deaths >= 0) %>%
-  group_by(country) %>%
-  filter (n() >= 7) -> df_deaths
+plot_covid19_spread <- function(df, type = "deaths", 
+                                min_cases = ifelse(type == "deaths", 10, 100),
+                                min_by_ctry_obs = 7,
+                                edate_cutoff = 30,
+                                per_capita = FALSE,
+                                highlight = NULL,
+                                intervention = NULL) {
+  if(!type %in% c("confirmed", "deaths", "recovered")) 
+    stop("Wrong 'type': Only 'confirmed', 'deaths', and 'recovered' are supported") 
 
+  df %>% 
+    group_by(iso3c) %>%
+    filter(!! sym(type) >= min_cases) %>%
+    mutate(edate = as.numeric(date - min(date))) %>%
+    filter(!is.na(edate)) %>%
+    group_by(country) %>%
+    filter (n() >= min_by_ctry_obs) %>%
+    ungroup() -> df
+  
+  if (per_capita) df <- df %>%
+    mutate(!! type := 1e5*(!! sym(type))/population) %>% 
+    filter(!is.na(!! sym(type)))
 
-lab_notes <- paste0(
-  "Data as provided by Johns Hopkins University Center for Systems Science ", 
-  "and Engineering (JHU CSSE) and obtained on March 28, 2020.\n",
-  "The sample is limited to countries with at least seven days of positve ", 
-  "event days data. Code: https://github.com/joachim-gassem/tidy_covid19"
-)
-
-lab_x_axis_confirmed <- 
-  "Days since confirmed cases reached 100 cases\n"
-
-lab_x_axis_deaths <- 
-  "Days since reported deaths reached 10\n"
-
-gg_my_blob <- list(
-  scale_y_continuous(trans='log10', labels = scales::comma),  
-  theme_minimal(), 
+  if(!is.null(highlight) && !any(highlight %in% df$iso3c)) 
+    stop(paste(
+      "Non-NULL 'highlight' value but no countries matched in data", 
+      "(Did you specify correct ISO3c codes?)"
+    )) 
+  
+  if(!is.null(intervention) && ! intervention %in% names(df)) 
+    stop(paste(
+      "Non-NULL 'intervention' value but no variable present in data", 
+      "(valid intervention types are 'lockdown', 'soc_dist', 'mov_rest',",
+      "'pub_health', and 'soc_econ')."
+    )) 
+  
+  
+  caption_str <- paste(
+    "Data as provided by Johns Hopkins University Center for Systems Science", 
+    sprintf("and Engineering (JHU CSSE) and obtained on %s.", data_date_str),
+    sprintf(
+      "The sample is limited to countries with at least %d days of data.", 
+      min_by_ctry_obs
+    )
+  )
+  if (!is.null(intervention)) caption_str <- paste(
+    caption_str,
+    sprintf(
+      "Dots indicate governmental interventions of type '%s'.", intervention 
+    )
+  )
+  caption_str <- paste(strwrap(paste(
+    caption_str, 
+    "Code: https://github.com/joachim-gassem/tidy_covid19."
+  ), width = 160), collapse = "\n")
+  
+  if (type == "deaths") {
+    x_str <- sprintf("Days after %s reported death\n", 
+                     scales::label_ordinal(big.mark = ",")(min_cases))
+    if (per_capita)
+      y_str <- "Reported deaths per 100,000 inhabitants (logarithmic scale)"
+    else y_str <- "Reported deaths (logarithmic scale)"
+    title_str <- sprintf("The First %d Days: Reported Deaths", edate_cutoff)
+  }
+  if (type == "confirmed") {
+    x_str <- sprintf("Days after %s confirmed case\n", 
+                     scales::label_ordinal(big.mark = ",")(min_cases))
+    if (per_capita)
+      y_str <- "Confirmed cases per 100,000 inhabitants (logarithmic scale)"
+    else y_str <- "Confirmed cases (logarithmic scale)"
+    title_str <- sprintf("The First %d Days: Confirmed Cases", edate_cutoff)
+  }
+  if (type == "recovered") {
+    x_str <- sprintf("Days after %s recovered case\n", 
+                     scales::label_ordinal(big.mark = ",")(min_cases))
+    y_str <- "Recovered cases (logarithmic scale)"
+    title_str <- sprintf("The First %d Days: Recovered Cases", edate_cutoff)
+  }
+  
+  p <- ggplot(df %>% filter (edate <= edate_cutoff), 
+         aes(x = edate, color = country, y = !! sym(type))) +
+    geom_line() +
+    labs(
+      x = x_str,
+      y = y_str,
+      title = title_str,
+      caption = caption_str
+    ) +
+    scale_y_continuous(trans='log10', labels = scales::comma) +  
+    theme_minimal() +  
   theme(
     plot.title.position = "plot", 
     plot.caption.position =  "plot",
     plot.caption = element_text(hjust = 0),
     axis.title.x = element_text(hjust = 1),
     axis.title.y = element_text(hjust = 1),
-  ),
-  labs(caption = lab_notes),
-  gghighlight(TRUE,  label_key = country, use_direct_label = TRUE,
-              label_params = list(segment.color = NA, nudge_x = 1))
+  )
+  
+  if(!is.null(intervention)) p <- p + 
+    geom_point(data = df %>% 
+                 group_by(iso3c) %>% 
+                 filter(!! sym(intervention) > lag(!! sym(intervention))))
+  
+  if(!is.null(highlight)) {
+    p <- p + 
+      gghighlight(iso3c %in% highlight,  
+                  label_key = country, use_direct_label = TRUE,
+                  label_params = list(segment.color = NA, nudge_x = 1),
+                  use_group_by = FALSE)
+  } else {
+    p <- p + 
+      gghighlight(TRUE,  
+                  label_key = country, use_direct_label = TRUE,
+                  label_params = list(segment.color = NA, nudge_x = 1))
+  }
+    
+  p
+}
+
+plot_covid19_spread(merged, type = "confirmed", min_cases = 100)
+plot_covid19_spread(merged, type = "confirmed", min_cases = 1000, per_capita = TRUE)
+plot_covid19_spread(merged, type = "deaths")
+plot_covid19_spread(merged, type = "deaths", per_capita = TRUE)
+plot_covid19_spread(
+  merged, edate_cutoff = 40, min_cases = 10, min_by_ctry_obs = 10,
+  highlight = unique(merged$iso3c[merged$lockdown > 0]), 
+  intervention = "lockdown"
 )
 
-
-gg_my_blob_confirmed <- c(gg_my_blob, 
-                          list(labs(x = lab_x_axis_confirmed,
-                                    y = "Confirmed cases (logarithmic scale)")))
-gg_my_blob_deaths <- c(gg_my_blob, 
-                       list(labs(x = lab_x_axis_deaths,
-                                 y = "Redorted deaths (logarithmic scale)")))
-
-ggplot(df_confirmed %>% filter (edate_confirmed <= 30), 
-       aes(x = edate_confirmed, color = country, y = confirmed)) +
-  geom_line() +
-  labs(
-    title = "Focus on the first month: Confirmed cases\n"
-  ) +
-  gg_my_blob_confirmed
-
-ggplot(df_deaths %>% filter (edate_deaths <= 30), 
-       aes(x = edate_deaths, color = country, y = deaths)) +
-  geom_line() +
-  labs(
-    title = "Focus on the first month: Deaths\n"
-  ) +
-  gg_my_blob_deaths  
-
-ggplot(df_deaths %>% 
-         filter(
-           recovered > 0,
-           edate_deaths <= 30,
-           max(recovered) >= 100
-         ), 
-       aes(x = edate_deaths, color = country, y = recovered)) +
-  geom_line() +
-  gg_my_blob_deaths +
-  labs(
-    title = "Remember: Recovered cases are increasing as well! Keep #FlattenTheCurve\n",
-    y = "Recovered cases (logarithmic scale)"
-  )
+plot_covid19_spread(merged, type = "recovered") + labs(
+  title = "Remember: Recovered cases are increasing as well! Keep #FlattenTheCurve\n"
+)
 
 ggsave("media/recoveries.png", width = 8, height = 4, dpi = 160)
 
@@ -270,7 +334,7 @@ ggplot(npi_ctry, aes(x = soc_dist_ctry, y = lockdown_ctry)) +
     y = "Lockdown initiated",
     caption = paste0(
       "Government intervention measures as provided by ",
-      "Assessment Capacities Project (ACAPS). Data as of March 27, 2020.\n",
+      sprintf("Assessment Capacities Project (ACAPS). Data as of %s.\n", data_date_str),
       "All countries with 10 or more reported deaths are included. ",
       "Code: https://github.com/joachim-gassem/tidy_covid19"
     )
@@ -280,7 +344,7 @@ compare_death_growth <- function(df, var) {
   lab_caption <- paste0(
     "Deaths data as provided by Johns Hopkins University Center for Systems Science ", 
     "and Engineering (JHU CSSE).\nGovernment intervention measures as provided by ",
-    "Assessment Capacities Project (ACAPS). Data as of March 27, 2020.\n",
+    sprintf("Assessment Capacities Project (ACAPS). Data as of %s.\n", data_date_str),
     "At least five daily country-level observations required by group for ", 
     "estimation. Code: https://github.com/joachim-gassem/tidy_covid19"
   )
@@ -384,7 +448,8 @@ ggplot(ctry_level %>% filter(!is.na(gtrends_country_score)),
       "and Engineering (JHU CSSE) \nGovernment intervention measures as provided by ",
       "Assessment Capacities Project (ACAPS). Public Attention\n",
       "as assessed by country rank on Google Trends, term 'coronavirus.'\n",
-      "Data obtained on March 28, 2020. Code: https://github.com/joachim-gassem/tidy_covid19"
+      sprintf("Data obtained on %s. ", data_date_str),
+      "Code: https://github.com/joachim-gassem/tidy_covid19"
     ),
     color = "Lockdown intiated?",
     size = "Number of implemented\nsocial distancing measures"
